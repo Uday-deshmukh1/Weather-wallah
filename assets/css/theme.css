@@ -1,0 +1,148 @@
+/* ============================================================
+   WEATHER WAALA — Dark Mode Only Theme
+   ============================================================ */
+
+:root {
+  --bg-primary: #080B14;
+  --bg-secondary: #0E1322;
+  --bg-tertiary: #121826;
+  --bg-glass: rgba(18, 24, 38, 0.6);
+  --bg-card: rgba(18, 24, 38, 0.9);
+
+  --text-primary: #f0f4ff;
+  --text-secondary: rgba(240, 244, 255, 0.6);
+  --text-accent: #f0f4ff;
+  --text-muted: rgba(240, 244, 255, 0.35);
+
+  --border-color: rgba(124, 58, 237, 0.1);
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-heavy: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --accent-primary: #7C3AED;
+  --accent-secondary: #00E5FF;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+
+  --glass-bg: rgba(18, 24, 38, 0.4);
+  --glass-border: rgba(124, 58, 237, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ===== GLOBAL ===== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ===== NAV ===== */
+.floating-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+}
+
+.nav-logo-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.nav-tab.active {
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--accent-primary);
+}
+
+/* ===== GLASS CARDS ===== */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+}
+
+.glass-card-sm {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+}
+
+/* ===== GRID ITEMS ===== */
+.metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.metric-label { color: var(--text-muted); }
+.metric-value { color: var(--text-accent); }
+
+/* ===== SEARCH ===== */
+.weather-component__search-bar {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.weather-component__search-bar::placeholder { color: var(--text-muted); }
+
+.weather-component__search-bar:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15),
+              0 0 20px rgba(124, 58, 237, 0.1);
+}
+
+/* ===== MAP ===== */
+.map-card { background: var(--bg-secondary); }
+
+/* ===== CARDS ===== */
+.forecast-card,
+.mood-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+}
+
+/* ===== FOOTER ===== */
+.site-footer { color: var(--text-primary); }
+
+/* ===== TOAST ===== */
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* ===== MODAL ===== */
+.safety-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-heavy);
+  color: var(--text-primary);
+}
+
+/* ===== SCROLL TO TOP ===== */
+.scroll-top-btn {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  color: var(--accent-primary);
+}
+
+.scroll-top-btn:hover {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+/* ===== LOADING ===== */
+.loading { opacity: 0.5; transition: opacity var(--transition-normal); }

@@ -1,0 +1,23 @@
+{
+  "name": "weather-waala",
+  "version": "1.0.0",
+  "description": "Weather Wallah — Simple Weather Dashboard by Uday Deshmukh",
+  "main": "index.html",
+  "scripts": {
+    "dev": "gulp sync",
+    "start": "npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Uday Deshmukh",
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "gulp-cli": "^2.3.0"
+  },
+  "dependencies": {
+    "browser-sync": "^2.29.3",
+    "gulp": "^4.0.2"
+  }
+}

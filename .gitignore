@@ -1,0 +1,21 @@
+# Environment variables - contains API keys
+.env
+assets/js/env-config.js
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output
+compiled-css/

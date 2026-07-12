@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Weather Wallah — Your Simple Weather Companion." />
+  <meta name="author" content="Uday Deshmukh" />
+  <meta name="copyright" content="Copyright (c) 2026 Uday Deshmukh. All Rights Reserved." />
+  <title>Weather Wallah</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="./assets/weather-icon.png" />
+  <link rel="icon" href="assets/favicon.ico">
+
+  <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/css/main.css">
+  <link rel="stylesheet" href="./assets/css/theme.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    canvas#net{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+    .glow{position:fixed;border-radius:50%;filter:blur(140px);opacity:.25;z-index:0;pointer-events:none}
+    .glow.one{width:500px;height:500px;background:#7C3AED;top:-150px;left:-100px;animation:drift1 14s ease-in-out infinite}
+    .glow.two{width:450px;height:450px;background:#00E5FF;bottom:-150px;right:-120px;animation:drift2 16s ease-in-out infinite}
+    .glow.three{width:350px;height:350px;background:#7C3AED;top:40%;left:60%;animation:drift3 18s ease-in-out infinite;opacity:.15}
+    @keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+    @keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+    @keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,40px)}}
+  </style>
+</head>
+
+<body id="top">
+  <canvas id="net"></canvas>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+  <div class="glow three"></div>
+
+  <!-- ===== FLOATING NAVBAR ===== -->
+  <nav class="floating-nav">
+    <a href="#" class="nav-logo">
+      <img src="./assets/icons/logo.png" alt="Weather Wallah" class="nav-logo-img">
+      <span class="nav-logo-text">Weather Wallah</span>
+    </a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-panel="weather"><i class="fa-solid fa-cloud-sun"></i> Weather</button>
+      <button class="nav-tab" data-panel="about"><i class="fa-solid fa-circle-info"></i> About</button>
+    </div>
+    <div class="nav-actions"></div>
+  </nav>
+
+  <!-- ===== MAIN DASHBOARD ===== -->
+  <main class="dashboard">
+
+    <!-- ====== WEATHER PANEL ====== -->
+    <section class="panel panel-weather panel-active" id="weather-panel">
+
+      <!-- Search Bar -->
+      <div class="glass-card-sm search-inline">
+        <div class="search-inline-inner">
+          <input type="text" class="weather-component__search-bar" id="main-search" list="place"
+            placeholder="Enter your city bro" autocomplete="address-level2" />
+          <datalist id="place" class="weather-component__datalist"></datalist>
+          <button class="weather-component__button" id="search-btn" aria-label="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <button class="weather-component__button-microphone voice-command-btn" id="microphone-button" title="Voice search">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+        </div>
+        <div class="voice-status" id="voice-status"></div>
+        <div id="error-message" class="error-message" role="alert" hidden></div>
+      </div>
+
+      <!-- Map Below Search -->
+      <div class="glass-card map-card">
+        <div class="map-city-label" id="map-city-label"></div>
+        <div id="weather-map"></div>
+      </div>
+
+      <!-- Date / Time -->
+      <div class="glass-card-sm date-bar">
+        <div id="date-time" class="date-text"></div>
+        <div id="date-time2" class="time-text"></div>
+      </div>
+
+      <!-- Current Weather Card -->
+      <div class="glass-card current-weather-card" id="weather">
+        <h1 id="city" class="city-name">___</h1>
+
+        <div class="weather-hero-section">
+          <div class="weather-illustration" id="weather-illustration">
+            <i id="icon" class="fas fa-cloud-sun weather-main-icon"></i>
+          </div>
+          <div class="temperature-block">
+            <h2 id="temp" class="main-temp">--°C</h2>
+            <p id="description" class="weather-desc">___</p>
+          </div>
+        </div>
+
+        <div class="temp-meta">
+          <span class="meta-feels">Feels like <strong id="feels-like">--°</strong></span>
+          <span class="meta-hilo">H:<strong id="hi-temp">--</strong>° L:<strong id="lo-temp">--</strong>°</span>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-head"><span class="metric-label">Humidity</span><i class="fa-solid fa-droplet"></i></div>
+            <span id="humidity" class="metric-value">--%</span>
+          </div>
+          <div class="metric-card">
+            <div class="metric-head"><span class="metric-label">Wind Speed</span><i class="fa-solid fa-flag"></i></div>
+            <span id="wind" class="metric-value">-- km/h</span>
+          </div>
+          <div class="metric-card" id="metric-uvi">
+            <div class="metric-head"><span class="metric-label">UV Index</span><i class="fa-solid fa-shield-sun"></i></div>
+            <span id="uvi" class="metric-value">0</span>
+            <p id="uvi-text" class="metric-sub">Low</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-head"><span class="metric-label">Air Quality</span><i class="fa-solid fa-wind"></i></div>
+            <span id="AirQuality" class="metric-value">--</span>
+            <span class="air-quality-label"></span>
+          </div>
+        </div>
+
+        <div id="last-updated" class="last-updated"></div>
+      </div>
+
+      <!-- Sunrise & Sunset -->
+      <div class="glass-card sun-card">
+        <div class="sun-item">
+          <div class="sun-icon-wrap sunrise-glow"><i class="fa-solid fa-sun"></i></div>
+          <div class="sun-info"><span class="sun-label">Sunrise</span><span id="sunrise" class="sun-time">--:--</span></div>
+        </div>
+        <div class="sun-divider"></div>
+        <div class="sun-item">
+          <div class="sun-icon-wrap sunset-glow"><i class="fa-solid fa-moon"></i></div>
+          <div class="sun-info"><span class="sun-label">Sunset</span><span id="sunset" class="sun-time">--:--</span></div>
+        </div>
+      </div>
+
+      <!-- Pressure & Visibility -->
+      <div class="glass-card detail-card">
+        <div class="detail-item">
+          <div class="detail-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="detail-info"><span class="detail-label">Pressure</span><span id="pressure" class="detail-value">-- hPa</span></div>
+        </div>
+        <div class="detail-divider"></div>
+        <div class="detail-item">
+          <div class="detail-icon"><i class="fa-solid fa-eye"></i></div>
+          <div class="detail-info"><span class="detail-label">Visibility</span><span id="visibility" class="detail-value">-- km</span></div>
+        </div>
+      </div>
+
+      <!-- 24-Hour Forecast -->
+      <div class="glass-card forecast-card">
+        <h3 class="card-title"><i class="fa-regular fa-clock"></i> 24-Hour Forecast</h3>
+        <div id="forecast-ticker" class="forecast-ticker">
+          <div class="forecast-loading">Loading forecast...</div>
+        </div>
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="glass-card forecast-card">
+        <h3 class="card-title"><i class="fa-regular fa-calendar"></i> 7-Day Forecast</h3>
+        <div id="forecast-week" class="forecast-week">
+          <div class="forecast-loading">Loading forecast...</div>
+        </div>
+      </div>
+
+      <!-- What to Wear & What to Eat -->
+      <div class="glass-card mood-card">
+        <h3 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Suggestions</h3>
+        <div id="mood-recommendations" class="mood-content">
+          <div class="mood-loading">Analyzing atmospheric conditions...</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====== ABOUT PANEL ====== -->
+    <section class="panel panel-about" id="about-panel">
+
+      <!-- Developer ki Kundali -->
+      <div class="glass-card developer-card about-full-width">
+        <h3 class="card-title"><i class="fa-solid fa-user"></i> Developer ki Kundali</h3>
+        <div class="developer-avatar">
+          <img src="./assets/icons/logo.png" alt="Uday Deshmukh">
+        </div>
+        <h3 class="developer-name">Uday Deshmukh</h3>
+        <p class="developer-role">UI/UX Designer & Frontend Developer</p>
+        <p class="about-desc">Passionate about building clean, user-friendly web apps. I love turning ideas into real products that people actually enjoy using. Weather Wallah is one of those projects where design meets functionality — simple, fast, and useful.</p>
+        <div class="social-icons">
+          <a href="https://udaydeshmukh.pages.dev" target="_blank" class="social-icon" title="Portfolio"><i class="fa-solid fa-globe"></i></a>
+          <a href="https://www.linkedin.com/in/uday-deshmukh-b8170a397" target="_blank" class="social-icon" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="https://github.com/Uday-deshmukh1" target="_blank" class="social-icon" title="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a href="https://www.instagram.com/uday_deshmukh.i" target="_blank" class="social-icon" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+
+      <!-- App Logo Card -->
+      <div class="glass-card about-logo-card about-full-width">
+        <div class="logo-glow-ring">
+          <img src="./assets/icons/logo.png" alt="Weather Wallah" class="about-logo-img">
+        </div>
+        <h2 class="about-title">Weather Wallah</h2>
+        <p class="about-tagline">Your Simple Weather Companion</p>
+        <p class="about-desc">Weather Wallah ek simple aur powerful weather app hai jo aapko sab kuch ek jagah deta hai — live weather, forecasts, air quality, map, aur smart suggestions. Banaya hai Uday Deshmukh ne, dil se.</p>
+      </div>
+
+      <!-- Project Highlights (README) -->
+      <div class="glass-card about-full-width animate-on-scroll">
+        <h3 class="card-title"><i class="fa-solid fa-star"></i> Project Highlights</h3>
+        <div class="highlights-grid">
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-live"><i class="fa-solid fa-satellite-dish"></i></div>
+            <h4>Live Weather</h4>
+            <p>Real-time temperature, humidity, wind, UV index — sab live data milta hai OpenWeatherMap API se.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-map"><i class="fa-solid fa-map-location-dot"></i></div>
+            <h4>Satellite Map</h4>
+            <p>Interactive Leaflet.js map with ArcGIS satellite tiles. Location pin ke saath dikhta hai.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-aqi"><i class="fa-solid fa-wind"></i></div>
+            <h4>Air Quality</h4>
+            <p>WAQI API se live AQI data. Color-coded labels — green se lekar red tak, hawa ki quality check karo.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-forecast"><i class="fa-solid fa-calendar-days"></i></div>
+            <h4>7-Day Forecast</h4>
+            <p>Weekly aur hourly forecast with weather icons. Kab barish hogi, kab dhoop aayegi — sab pata chalega.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-wear"><i class="fa-solid fa-shirt"></i></div>
+            <h4>What to Wear</h4>
+            <p>Temperature ke hisaab se kapdon ki suggestion — garmi mein lightweight clothes, thandi mein warm layers.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-eat"><i class="fa-solid fa-utensils"></i></div>
+            <h4>What to Eat</h4>
+            <p>Mausam ke according food suggestions — garmi mein smoothie bowl, thandi mein hot soup aur chai.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-voice"><i class="fa-solid fa-microphone"></i></div>
+            <h4>Voice Search</h4>
+            <p>Mic dabaao aur city bolo — hands-free search kaam karta hai. Baar-baar type karne ki zaroorat nahi.</p>
+          </div>
+          <div class="highlight-card animate-on-scroll">
+            <div class="highlight-icon hl-mobile"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h4>Mobile Ready</h4>
+            <p>Bottom navigation, responsive design, fast loading — kisi bhi phone pe smooth chalta hai.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="glass-card about-full-width animate-on-scroll">
+        <h3 class="card-title"><i class="fa-solid fa-layer-group"></i> Tech Stack</h3>
+        <div class="tech-grid">
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon"><i class="fa-brands fa-html5"></i></div>
+            <span>HTML5</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon css-icon"><i class="fa-brands fa-css3-alt"></i></div>
+            <span>CSS3</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon js-icon"><i class="fa-brands fa-js"></i></div>
+            <span>JavaScript ES6</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon bootstrap-icon"><i class="fa-brands fa-bootstrap"></i></div>
+            <span>Bootstrap</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon gulp-icon"><i class="fa-solid fa-gear"></i></div>
+            <span>Gulp</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon owm-icon"><i class="fa-solid fa-cloud-sun"></i></div>
+            <span>OpenWeatherMap</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon aqi-icon"><i class="fa-solid fa-lungs"></i></div>
+            <span>WAQI API</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon leaflet-icon"><i class="fa-solid fa-map"></i></div>
+            <span>Leaflet.js + ArcGIS</span>
+          </div>
+          <div class="tech-item animate-on-scroll">
+            <div class="tech-icon"><i class="fa-brands fa-font-awesome"></i></div>
+            <span>Font Awesome 6</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true">
+    <div class="toast-content" role="group" aria-label="Notification">
+      <div class="toast-icon" aria-hidden="true"></div>
+      <div id="toast-message" class="toast-message"></div>
+      <button id="toast-close" class="toast-close" aria-label="Close notification">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Weather Alerts -->
+  <div class="weather-alerts-container" id="weather-alerts"></div>
+
+  <!-- Safety Modal -->
+  <div class="modal-overlay" id="safety-modal-overlay" style="display:none">
+    <div class="safety-modal">
+      <div class="modal-header">
+        <h3>Weather Safety Tips</h3>
+        <button class="close-modal" id="close-safety-modal">&times;</button>
+      </div>
+      <div class="modal-content" id="safety-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Scroll to Top -->
+  <button id="scroll-btn" class="scroll-top-btn" aria-label="Scroll to top">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <a href="#top" class="smoothscroll scroll-top">
+      <span class="icon-keyboard_arrow_up">&#8679;</span>
+    </a>
+    <div>
+      <h2 class="textfooter">Weather Wallah</h2>
+      <p class="copyright-text">&copy; 2026 Uday Deshmukh. All Rights Reserved.</p>
+      <div class="footerSocials">
+        <a href="https://udaydeshmukh.pages.dev" target="_blank"><i class="fa-solid fa-globe"></i></a>
+        <a href="https://www.linkedin.com/in/uday-deshmukh-b8170a397" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="https://github.com/Uday-deshmukh1" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.instagram.com/uday_deshmukh.i" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="./assets/js/env-config.js"></script>
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>
